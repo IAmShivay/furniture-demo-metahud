@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
@@ -9,62 +9,105 @@ import {
   selectIsAuthenticated,
   selectLoading,
   selectUser,
-  setUser,
+  setCredentials,
+  setError,
+  setLoading,
   type User,
 } from '../store/slices/authSlice';
-
-
-
-
-
-
-
-const DEMO_ADMIN: User = {
-  id: 'demo-admin',
-  name: 'Admin User',
-  email: 'admin@luxehouse.in',
-  role: 'admin',
-  emailVerified: true,
-  phoneVerified: true,
-  createdAt: new Date().toISOString(),
-};
+import {
+  useGetProfileQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useRegisterMutation,
+} from '../store/api/authApi';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
 
-  const storedUser = useAppSelector(selectUser);
+  const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const loading = useAppSelector(selectLoading);
   const error = useAppSelector(selectError);
+  const userRole = user?.role;
 
-  const user = storedUser ?? DEMO_ADMIN;
-  const userRole = user.role;
+  const [loginMutation] = useLoginMutation();
+  const [registerMutation] = useRegisterMutation();
+  const [logoutMutation] = useLogoutMutation();
+  const { data: profileData, isLoading: isProfileLoading } = useGetProfileQuery();
+
+  useEffect(() => {
+    if (profileData?.data?.user) {
+      dispatch(setCredentials({ user: profileData.data.user }));
+      return;
+    }
+
+    if (!isProfileLoading && !isAuthenticated) {
+      dispatch(logoutAction());
+    }
+  }, [profileData, isProfileLoading, isAuthenticated, dispatch]);
 
   const login = useCallback(
-    async (email: string) => {
-      dispatch(setUser({ ...DEMO_ADMIN, email }));
-      return { success: true, user: { ...DEMO_ADMIN, email } };
+    async (email: string, password: string) => {
+      try {
+        dispatch(setLoading(true));
+        const result = await loginMutation({ email, password }).unwrap();
+
+        if (result.success) {
+          dispatch(setCredentials({ user: result.data.user }));
+          return { success: true, user: result.data.user };
+        }
+
+        dispatch(setError(result.message));
+        return { success: false, error: result.message };
+      } catch (loginError: any) {
+        const errorMessage = loginError?.data?.message || 'Login failed';
+        dispatch(setError(errorMessage));
+        return { success: false, error: errorMessage };
+      } finally {
+        dispatch(setLoading(false));
+      }
     },
-    [dispatch],
+    [dispatch, loginMutation],
   );
 
   const register = useCallback(
-    async (name: string, email: string) => {
-      const registered = { ...DEMO_ADMIN, name, email };
-      dispatch(setUser(registered));
-      return { success: true, user: registered };
+    async (name: string, email: string, password: string, phone?: string) => {
+      try {
+        dispatch(setLoading(true));
+        const result = await registerMutation({ name, email, password, phone }).unwrap();
+
+        if (result.success) {
+          dispatch(setCredentials({ user: result.data.user }));
+          return { success: true, user: result.data.user };
+        }
+
+        dispatch(setError(result.message));
+        return { success: false, error: result.message };
+      } catch (registerError: any) {
+        const errorMessage = registerError?.data?.message || 'Registration failed';
+        dispatch(setError(errorMessage));
+        return { success: false, error: errorMessage };
+      } finally {
+        dispatch(setLoading(false));
+      }
     },
-    [dispatch],
+    [dispatch, registerMutation],
   );
 
   const logout = useCallback(async () => {
-    dispatch(logoutAction());
-  }, [dispatch]);
+    try {
+      await logoutMutation().unwrap();
+    } catch (logoutError) {
+      console.error('Logout error:', logoutError);
+    } finally {
+      dispatch(logoutAction());
+    }
+  }, [dispatch, logoutMutation]);
 
   const hasRole = useCallback(
     (roles: string | string[]) => {
       const roleArray = Array.isArray(roles) ? roles : [roles];
-      return roleArray.includes(userRole);
+      return roleArray.includes(userRole as string);
     },
     [userRole],
   );
@@ -75,19 +118,14 @@ export const useAuth = () => {
   const isCustomer = useCallback(() => hasRole('customer'), [hasRole]);
 
   return {
-    
     user,
-    isAuthenticated: true,
-    loading,
+    isAuthenticated,
+    loading: loading || isProfileLoading,
     error,
     userRole,
-
-    
     login,
     register,
     logout,
-
-    
     hasRole,
     isAdmin,
     isManager,
@@ -95,3 +133,5 @@ export const useAuth = () => {
     isCustomer,
   };
 };
+
+export type { User };

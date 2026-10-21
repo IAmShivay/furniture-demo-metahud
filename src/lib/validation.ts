@@ -189,9 +189,13 @@ export const updateProductSchema = createProductSchema.partial();
 
 
 
-const booleanParam = z
-  .enum(['true', 'false', '1', '0'])
-  .transform((value) => value === 'true' || value === '1');
+const booleanParam = z.preprocess(
+  (value) => (value === '' || value === undefined ? undefined : value),
+  z
+    .enum(['true', 'false', '1', '0'])
+    .transform((value) => value === 'true' || value === '1')
+    .optional(),
+);
 
 const optionalNumberParam = z
   .string()
@@ -212,6 +216,18 @@ export const productQuerySchema = z.object({
   priceMax: optionalNumberParam,
   sortBy: z.enum(SORT_OPTIONS).optional().default('featured'),
   sortOrder: z.enum(['asc', 'desc']).optional(),
+  ids: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) =>
+      value
+        ? value
+            .split(',')
+            .map((entry) => entry.trim())
+            .filter(Boolean)
+        : undefined,
+    ),
   featured: booleanParam.optional(),
   onSale: booleanParam.optional(),
   inStock: booleanParam.optional(),
@@ -222,3 +238,60 @@ export const productQuerySchema = z.object({
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 export type ProductQueryInput = z.infer<typeof productQuerySchema>;
+
+export const productSearchQuerySchema = productQuerySchema.extend({
+  search: z.string().trim().min(1, 'Search query is required'),
+});
+
+export const idParamSchema = z.object({
+  id: z.string().uuid('Invalid identifier'),
+});
+
+export const registerSchema = z.object({
+  name: z.string().trim().min(2, 'Please enter your name').max(100, 'Name is too long'),
+  email: z.string().trim().email('Please enter a valid email address'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters long')
+    .max(100, 'Password is too long'),
+  phone: z.string().trim().max(20).optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.string().trim().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+export const addressSchema = z.object({
+  street: z.string().trim().min(1, 'Street is required').max(200),
+  city: z.string().trim().min(1, 'City is required').max(80),
+  state: z.string().trim().min(1, 'State is required').max(80),
+  zipCode: z.string().trim().min(1, 'Zip code is required').max(20),
+  country: z.string().trim().min(1, 'Country is required').max(80),
+});
+
+export const preferencesSchema = z.object({
+  notifications: z
+    .object({
+      email: z.boolean().optional(),
+      sms: z.boolean().optional(),
+    })
+    .optional(),
+  newsletter: z.boolean().optional(),
+});
+
+export const profileUpdateSchema = z.object({
+  name: z.string().trim().min(2, 'Please enter your name').max(100).optional(),
+  phone: z.string().trim().max(20).optional(),
+  addresses: z.array(addressSchema).max(5).optional(),
+  preferences: preferencesSchema.optional(),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z
+    .string()
+    .min(8, 'Password must be at least 8 characters long')
+    .max(100, 'Password is too long'),
+});
+

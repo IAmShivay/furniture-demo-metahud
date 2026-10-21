@@ -169,3 +169,54 @@ export const newsletterSubscribers = pgTable(
 );
 
 export type NewsletterSubscriberRow = typeof newsletterSubscribers.$inferSelect;
+
+
+
+
+
+export interface UserAddress {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export interface UserPreferences {
+  notifications?: { email?: boolean; sms?: boolean };
+  newsletter?: boolean;
+}
+
+export const users = pgTable(
+  'users',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    passwordHash: text('password_hash').notNull(),
+
+    role: text('role').notNull().default('customer'),
+    phone: text('phone'),
+    avatar: text('avatar'),
+
+    isActive: boolean('is_active').notNull().default(true),
+    emailVerified: boolean('email_verified').notNull().default(false),
+
+    addresses: jsonb('addresses').$type<UserAddress[]>().notNull().default([]),
+    preferences: jsonb('preferences').$type<UserPreferences>().notNull().default({}),
+
+    lastLogin: timestamp('last_login', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    emailUnique: uniqueIndex('users_email_unique').on(table.email),
+    roleIdx: index('users_role_idx').on(table.role),
+  }),
+);
+
+export type UserRow = typeof users.$inferSelect;
+export type NewUserRow = typeof users.$inferInsert;

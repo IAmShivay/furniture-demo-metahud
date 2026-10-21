@@ -7,9 +7,10 @@
 import './env';
 
 import { sql } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
 
 import { db } from '../src/db';
-import { products } from '../src/db/schema';
+import { products, users } from '../src/db/schema';
 
 const IMG = (id: string, width = 800) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${width}`;
@@ -318,12 +319,63 @@ const seedProducts = [
 ];
 
 async function main() {
+  console.log('🌱 Seeding demo accounts…');
+
+  await db.execute(sql`DELETE FROM users`);
+
+  const demoUsers = [
+    {
+      name: 'Admin User',
+      email: process.env.SEED_ADMIN_EMAIL || 'admin@luxehouse.in',
+      password: process.env.SEED_ADMIN_PASSWORD || 'admin123',
+      role: 'admin',
+      phone: '+91 9547587246',
+    },
+    {
+      name: 'Store Manager',
+      email: process.env.SEED_MANAGER_EMAIL || 'manager@luxehouse.in',
+      password: process.env.SEED_MANAGER_PASSWORD || 'manager123',
+      role: 'manager',
+      phone: '+91 9547587247',
+    },
+    {
+      name: 'Support Agent',
+      email: process.env.SEED_SUPPORT_EMAIL || 'support@luxehouse.in',
+      password: process.env.SEED_SUPPORT_PASSWORD || 'support123',
+      role: 'support',
+      phone: '+91 9547587248',
+    },
+    {
+      name: 'Happy Customer',
+      email: process.env.SEED_CUSTOMER_EMAIL || 'customer@luxehouse.in',
+      password: process.env.SEED_CUSTOMER_PASSWORD || 'customer123',
+      role: 'customer',
+      phone: '+91 9547587249',
+    },
+  ];
+
+  await db.insert(users).values(
+    await Promise.all(
+      demoUsers.map(async (user) => ({
+        name: user.name,
+        email: user.email,
+        passwordHash: await bcrypt.hash(user.password, 10),
+        role: user.role,
+        phone: user.phone,
+        emailVerified: true,
+        isActive: true,
+      })),
+    ),
+  );
+
+  console.log(`✅ Seeded ${demoUsers.length} demo accounts.`);
+
   console.log('🌱 Seeding products…');
 
   await db.execute(sql`DELETE FROM products`);
 
   await db.insert(products).values(
-    seedProducts.map((product) => ({
+    seedProducts.map((product, index) => ({
       ...product,
       originalPrice:
         product.originalPrice === null ? null : product.originalPrice.toFixed(2),
@@ -338,6 +390,7 @@ async function main() {
       customization: [],
       shipping: null,
       costPrice: null,
+      createdAt: new Date(Date.now() - index * 2 * 24 * 60 * 60 * 1000),
     })),
   );
 
