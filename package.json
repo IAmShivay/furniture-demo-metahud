@@ -1,0 +1,41 @@
+{
+  "name": "luxehouse-catalogue",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mini Digital Catalogue - full-stack product catalogue for a furniture business (Next.js + PostgreSQL + Drizzle ORM)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:reset": "tsx scripts/migrate.ts --reset && tsx scripts/seed.ts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "@reduxjs/toolkit": "^2.8.2",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.45.4",
+    "lucide-react": "^0.544.0",
+    "next": "^15.5.28",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-redux": "^9.2.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "autoprefixer": "^10.4.21",
+    "drizzle-kit": "^0.31.11",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
