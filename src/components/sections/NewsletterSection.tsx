@@ -99,7 +99,7 @@ const NewsletterSection: React.FC = () => {
               </div>
             )}
 
-            {/* Member Benefits */}
+            
             <div className="mt-12 grid grid-cols-2 gap-6">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-amber-600/20 rounded-lg flex items-center justify-center">
@@ -123,14 +123,14 @@ const NewsletterSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Contact & Showroom Information */}
+          
           <div>
             <h3 className="text-3xl font-bold mb-8 font-montserrat">
               Visit Our Showroom
             </h3>
 
             <div className="space-y-8">
-              {/* Showroom */}
+              
               <div className="bg-gray-800/50 rounded-xl p-8 border border-gray-700 hover:border-amber-600/50 transition-colors duration-300">
                 <h4 className="text-2xl font-semibold mb-6 text-amber-400 font-montserrat">Durgapur Showroom</h4>
                 <div className="space-y-4">
@@ -166,7 +166,7 @@ const NewsletterSection: React.FC = () => {
                 </button>
               </div>
 
-              {/* Design Services */}
+              
               <div className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/30 rounded-xl p-8">
                 <div className="flex items-center space-x-3 mb-4">
                   <Calendar className="w-6 h-6 text-amber-400" />
@@ -192,7 +192,7 @@ const NewsletterSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Services List */}
+              
               <div className="space-y-4">
                 <h4 className="text-xl font-semibold text-amber-400 font-montserrat">Our Premium Services</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

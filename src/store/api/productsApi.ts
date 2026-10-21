@@ -59,6 +59,7 @@ export interface ProductFilters {
   featured?: boolean;
   onSale?: boolean;
   includeInactive?: boolean;
+  ids?: string;
   search?: string;
   page?: number;
   limit?: number;

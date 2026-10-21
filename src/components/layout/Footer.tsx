@@ -94,7 +94,7 @@ const Footer: React.FC = () => {
           </div>
 
           {}
-          <div>
+          <div className="min-w-0">
             <h4 className="text-lg font-semibold mb-6 font-montserrat">
               Get in Touch
             </h4>
@@ -140,13 +140,13 @@ const Footer: React.FC = () => {
                     const result = await subscribe({ email: footerEmail }).unwrap();
                     if (result.success) setFooterSubscribed(true);
                   } catch {}
-                }} className="flex">
+                }} className="flex min-w-0">
                   <input
                     type="email"
                     value={footerEmail}
                     onChange={(e) => setFooterEmail(e.target.value)}
                     placeholder="Your email"
-                    className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-white placeholder-gray-400"
+                    className="flex-1 min-w-0 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-white placeholder-gray-400"
                     required
                   />
                   <button type="submit" disabled={footerLoading} className="bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-r-lg transition-colors duration-200">

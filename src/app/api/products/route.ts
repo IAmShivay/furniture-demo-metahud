@@ -4,7 +4,6 @@ import { fail, ok, withErrorHandling } from '@/lib/api';
 import { createProduct, listProducts } from '@/lib/products';
 import { createProductSchema, productQuerySchema } from '@/lib/validation';
 
-export const dynamic = 'force-dynamic';
 
 
 

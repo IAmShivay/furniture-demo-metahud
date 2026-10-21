@@ -319,9 +319,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                     <User className="w-4 h-4" />
                     <span>My Account</span>
                   </Link>
-                  <Link href="/account" onClick={() => setUserMenuOpen(false)} className="flex items-center space-x-3 px-5 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                  <Link href="/products" onClick={() => setUserMenuOpen(false)} className="flex items-center space-x-3 px-5 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
                     <Package className="w-4 h-4" />
-                    <span>My Orders</span>
+                    <span>Browse Catalogue</span>
                   </Link>
 
                   {isSupport() && (
@@ -331,18 +331,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                         <LayoutDashboard className="w-4 h-4" />
                         <span>Dashboard</span>
                       </Link>
-                      <Link href="/admin/orders" onClick={() => setUserMenuOpen(false)} className="flex items-center space-x-3 px-5 py-2.5 text-sm text-amber-400 hover:text-amber-300 hover:bg-white/10 transition-colors">
+                      <Link href="/admin/products" onClick={() => setUserMenuOpen(false)} className="flex items-center space-x-3 px-5 py-2.5 text-sm text-amber-400 hover:text-amber-300 hover:bg-white/10 transition-colors">
                         <Package className="w-4 h-4" />
-                        <span>Manage Orders</span>
-                      </Link>
-                    </>
-                  )}
-
-                  {isAdmin() && (
-                    <>
-                      <Link href="/admin/users" onClick={() => setUserMenuOpen(false)} className="flex items-center space-x-3 px-5 py-2.5 text-sm text-amber-400 hover:text-amber-300 hover:bg-white/10 transition-colors">
-                        <Shield className="w-4 h-4" />
-                        <span>Manage Users</span>
+                        <span>Manage Products</span>
                       </Link>
                     </>
                   )}
@@ -517,23 +508,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick }) => {
                   <Link href="/account" onClick={() => dispatch(setMobileMenuOpen(false))} className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all">
                     <User className="w-5 h-5" /><span>My Account</span>
                   </Link>
-                  <Link href="/account" onClick={() => dispatch(setMobileMenuOpen(false))} className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all">
-                    <Package className="w-5 h-5" /><span>My Orders</span>
+                  <Link href="/products" onClick={() => dispatch(setMobileMenuOpen(false))} className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all">
+                    <Package className="w-5 h-5" /><span>Browse Catalogue</span>
                   </Link>
                   {isSupport() && (
                     <>
                       <Link href="/admin" onClick={() => dispatch(setMobileMenuOpen(false))} className="flex items-center space-x-3 px-4 py-3 text-amber-700 hover:bg-amber-50 rounded-xl transition-all">
                         <LayoutDashboard className="w-5 h-5" /><span>Dashboard</span>
                       </Link>
-                      <Link href="/admin/orders" onClick={() => dispatch(setMobileMenuOpen(false))} className="flex items-center space-x-3 px-4 py-3 text-amber-700 hover:bg-amber-50 rounded-xl transition-all">
-                        <Package className="w-5 h-5" /><span>Manage Orders</span>
+                      <Link href="/admin/products" onClick={() => dispatch(setMobileMenuOpen(false))} className="flex items-center space-x-3 px-4 py-3 text-amber-700 hover:bg-amber-50 rounded-xl transition-all">
+                        <Package className="w-5 h-5" /><span>Manage Products</span>
                       </Link>
                     </>
-                  )}
-                  {isAdmin() && (
-                    <Link href="/admin/users" onClick={() => dispatch(setMobileMenuOpen(false))} className="flex items-center space-x-3 px-4 py-3 text-amber-700 hover:bg-amber-50 rounded-xl transition-all">
-                      <Shield className="w-5 h-5" /><span>Manage Users</span>
-                    </Link>
                   )}
                   <button onClick={() => { dispatch(setMobileMenuOpen(false)); logout(); router.push('/'); }} className="flex items-center space-x-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all">
                     <LogOut className="w-5 h-5" /><span>Sign Out</span>

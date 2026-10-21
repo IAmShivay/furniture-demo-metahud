@@ -5,7 +5,6 @@ import { fail, ok, withErrorHandling } from '@/lib/api';
 import { db } from '@/db';
 import { newsletterSubscribers } from '@/db/schema';
 
-export const dynamic = 'force-dynamic';
 
 const subscribeSchema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Please enter a valid email address'),

@@ -29,12 +29,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, visible: true },
-    { name: 'Products', path: '/admin/products', icon: Package, visible: true },
-    { name: 'View Store', path: '/', icon: Store, visible: true },
+    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { name: 'Products', path: '/admin/products', icon: Package },
+    { name: 'View Store', path: '/', icon: Store },
   ];
 
-  const visibleNavItems = navItems.filter((item) => item.visible);
+  const visibleNavItems = navItems;
 
   const isActive = (path: string) =>
     path === '/admin' ? pathname === path : pathname.startsWith(path);
@@ -183,9 +183,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                       <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
                       <p className="text-xs text-gray-400">{user?.email}</p>
                     </div>
-                    <button onClick={() => { router.push('/'); setUserMenuOpen(false); }}
+                    <button onClick={() => { router.push('/account'); setUserMenuOpen(false); }}
                       className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                      <Store className="w-4 h-4 text-gray-400" /> Back to Store
+                      <User className="w-4 h-4 text-gray-400" /> Your Profile
                     </button>
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button onClick={handleLogout}

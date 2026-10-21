@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, ilike, lte, or, sql, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, ilike, inArray, lte, or, sql, type SQL } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { products } from '@/db/schema';
@@ -24,6 +24,10 @@ const buildFilters = (query: ProductQueryInput): SQL | undefined => {
 
   if (query.category) {
     conditions.push(eq(products.category, query.category));
+  }
+
+  if (query.ids && query.ids.length > 0) {
+    conditions.push(inArray(products.id, query.ids));
   }
 
   if (query.subcategory) {
@@ -301,4 +305,91 @@ export async function deleteProduct(id: string): Promise<boolean> {
     .returning({ id: products.id });
 
   return deleted.length > 0;
+}
+
+export interface CatalogueStats {
+  totalProducts: number;
+  activeProducts: number;
+  draftProducts: number;
+  lowStockProducts: number;
+  inventoryValue: number;
+  averageRating: number;
+  topProducts: ProductDTO[];
+  recentProducts: ProductDTO[];
+  trend: { date: string; revenue: number; orders: number }[];
+}
+
+export async function getCatalogueStats(days = 30): Promise<CatalogueStats> {
+  const rows = await db.select().from(products);
+
+  let activeProducts = 0;
+  let draftProducts = 0;
+  let lowStockProducts = 0;
+  let inventoryValue = 0;
+  let ratingSum = 0;
+  let ratedProducts = 0;
+
+  for (const row of rows) {
+    if (row.status === 'active') activeProducts += 1;
+    if (row.status === 'draft') draftProducts += 1;
+
+    const quantity = row.inventory?.quantity ?? 0;
+    const threshold = row.inventory?.lowStockThreshold ?? 0;
+
+    if (quantity <= threshold) lowStockProducts += 1;
+
+    inventoryValue += Number(row.basePrice) * quantity;
+
+    const average = row.rating?.average ?? 0;
+    if (average > 0) {
+      ratingSum += average;
+      ratedProducts += 1;
+    }
+  }
+
+  const mapped = rows.map(toProductDTO);
+
+  const topProducts = mapped
+    .slice()
+    .sort((first, second) => second.salesCount - first.salesCount || second.rating.average - first.rating.average)
+    .slice(0, 5);
+
+  const recentProducts = mapped
+    .slice()
+    .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime())
+    .slice(0, 5);
+
+  const since = Date.now() - days * 24 * 60 * 60 * 1000;
+  const trend = rows
+    .filter((row) => new Date(row.createdAt).getTime() >= since)
+    .reduce<{ date: string; revenue: number; orders: number }[]>((accumulator, row) => {
+      const date = new Date(row.createdAt).toISOString().slice(0, 10);
+      const existing = accumulator.find((entry) => entry.date === date);
+
+      if (existing) {
+        existing.revenue += Number(row.basePrice) * (row.inventory?.quantity ?? 0);
+        existing.orders += 1;
+      } else {
+        accumulator.push({
+          date,
+          revenue: Number(row.basePrice) * (row.inventory?.quantity ?? 0),
+          orders: 1,
+        });
+      }
+
+      return accumulator;
+    }, [])
+    .sort((first, second) => first.date.localeCompare(second.date));
+
+  return {
+    totalProducts: rows.length,
+    activeProducts,
+    draftProducts,
+    lowStockProducts,
+    inventoryValue,
+    averageRating: ratedProducts > 0 ? ratingSum / ratedProducts : 0,
+    topProducts,
+    recentProducts,
+    trend,
+  };
 }
