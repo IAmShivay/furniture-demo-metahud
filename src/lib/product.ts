@@ -1,6 +1,6 @@
 import type { ProductRow } from '@/db/schema';
 
-/** Shape of a product as it is consumed by the UI (matches the original app API). */
+
 export interface ProductDTO {
   id: string;
   _id: string;
@@ -60,13 +60,13 @@ const toNumber = (value: unknown): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-/**
- * Maps a database row to the API/UI shape.
- *
- * `numeric` columns come back from Postgres as strings, so every numeric value
- * is normalised here — the UI expects real numbers (it calls `.toLocaleString`
- * and compares prices with `>`).
- */
+
+
+
+
+
+
+
 export function toProductDTO(row: ProductRow): ProductDTO {
   const images = row.images ?? [];
 
@@ -89,12 +89,12 @@ export function toProductDTO(row: ProductRow): ProductDTO {
     images,
     image: images[0] ?? '',
     videos: row.videos ?? [],
-    dimensions: row.dimensions ?? {
-      length: '',
-      width: '',
-      height: '',
-      weight: '',
-      unit: 'inches',
+    dimensions: {
+      length: row.dimensions?.length ?? '',
+      width: row.dimensions?.width ?? '',
+      height: row.dimensions?.height ?? '',
+      weight: row.dimensions?.weight ?? '',
+      unit: row.dimensions?.unit ?? 'inches',
     },
     materials: row.materials ?? [],
     colors: row.colors ?? [],
@@ -121,7 +121,7 @@ export function toProductDTO(row: ProductRow): ProductDTO {
   };
 }
 
-/** Builds a URL friendly slug from a product name. */
+
 export function slugify(value: string): string {
   return value
     .toLowerCase()

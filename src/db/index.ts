@@ -11,13 +11,13 @@ if (!connectionString) {
   );
 }
 
-/**
- * Neon serverless HTTP driver.
- *
- * The HTTP driver talks to Postgres over WebSockets-free HTTPS requests, which
- * works both on a local machine and on serverless platforms (Vercel, etc.)
- * without opening a persistent TCP connection.
- */
+
+
+
+
+
+
+
 const sql = neon(connectionString);
 
 export const db = drizzle(sql, { schema });

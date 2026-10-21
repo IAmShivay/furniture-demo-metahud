@@ -11,16 +11,16 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
-/* -------------------------------------------------------------------------- */
-/*                              Shared sub-types                               */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 export interface ProductDimensions {
   length: string;
   width: string;
   height: string;
   weight: string;
-  unit: string;
+  unit?: string;
 }
 
 export interface ProductInventory {
@@ -37,7 +37,7 @@ export interface ProductRating {
 
 export interface ProductShipping {
   weight: number;
-  dimensions: { length: number; width: number; height: number };
+  dimensions?: { length: number; width: number; height: number };
   freeShipping: boolean;
   shippingClass: 'standard' | 'white-glove' | 'freight';
 }
@@ -60,9 +60,9 @@ export interface CustomizationSection {
   options: CustomizationOption[];
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                 Products                                    */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 export const products = pgTable(
   'products',
@@ -150,9 +150,9 @@ export const products = pgTable(
 export type ProductRow = typeof products.$inferSelect;
 export type NewProductRow = typeof products.$inferInsert;
 
-/* -------------------------------------------------------------------------- */
-/*                              Newsletter signups                            */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 export const newsletterSubscribers = pgTable(
   'newsletter_subscribers',

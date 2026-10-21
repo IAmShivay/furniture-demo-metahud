@@ -5,15 +5,15 @@ import { products } from '@/db/schema';
 import { slugify, toProductDTO, type ProductDTO } from '@/lib/product';
 import type { CreateProductInput, ProductQueryInput, UpdateProductInput } from '@/lib/validation';
 
-/* -------------------------------------------------------------------------- */
-/*                                   Helpers                                   */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 const buildFilters = (query: ProductQueryInput): SQL | undefined => {
   const conditions: (SQL | undefined)[] = [];
 
-  // The public catalogue only ever shows active products. The admin panel
-  // explicitly opts in with `includeInactive=true` so it can manage drafts too.
+  
+  
   if (query.includeInactive) {
     if (query.status) {
       conditions.push(eq(products.status, query.status));
@@ -93,9 +93,9 @@ const buildOrderBy = (query: ProductQueryInput): SQL[] => {
   }
 };
 
-/* -------------------------------------------------------------------------- */
-/*                                  Queries                                    */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 export interface ProductListResult {
   items: ProductDTO[];
@@ -186,9 +186,9 @@ export async function getCategorySummary() {
   return Array.from(grouped.values());
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                 Mutations                                   */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 export async function createProduct(input: CreateProductInput): Promise<ProductDTO> {
   const slug = slugify(input.slug || input.name);

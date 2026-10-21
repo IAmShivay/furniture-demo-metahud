@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-/* -------------------------------------------------------------------------- */
-/*                                 Constants                                   */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 export const PRODUCT_CATEGORIES = [
   'sofas',
@@ -28,14 +28,14 @@ export const SORT_OPTIONS = [
   'createdAt',
 ] as const;
 
-/* -------------------------------------------------------------------------- */
-/*                              Field validators                               */
-/* -------------------------------------------------------------------------- */
 
-/**
- * Accepts a fully qualified http(s) URL or a root relative path
- * (`/products/sofa.jpg`) — both are valid ways of pointing at an image.
- */
+
+
+
+
+
+
+
 const imageUrl = z
   .string()
   .trim()
@@ -53,7 +53,7 @@ const imageUrl = z
     { message: 'Must be a valid URL (http/https) or a path starting with "/"' },
   );
 
-/** Optional free text field: empty strings are treated as "not provided". */
+
 const optionalText = (max: number) =>
   z
     .string()
@@ -95,9 +95,9 @@ export const customizationSectionSchema = z.object({
   options: z.array(customizationOptionSchema).min(1, 'At least one option is required'),
 });
 
-/* -------------------------------------------------------------------------- */
-/*                              Product payloads                               */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 export const createProductSchema = z.object({
   name: z
@@ -185,9 +185,9 @@ export const createProductSchema = z.object({
 
 export const updateProductSchema = createProductSchema.partial();
 
-/* -------------------------------------------------------------------------- */
-/*                              Query parameters                               */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 const booleanParam = z
   .enum(['true', 'false', '1', '0'])

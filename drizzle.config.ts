@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { defineConfig } from 'drizzle-kit';
 
-// `.env.local` holds the real credentials, `.env` is an optional fallback.
+
 config({ path: '.env.local' });
 config({ path: '.env' });
 

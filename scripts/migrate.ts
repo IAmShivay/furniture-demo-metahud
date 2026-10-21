@@ -1,10 +1,10 @@
-/**
- * Applies the generated Drizzle migrations to the configured PostgreSQL
- * database (Neon).
- *
- *   npm run db:migrate          # apply pending migrations
- *   npm run db:migrate -- --reset   # drop everything first, then migrate
- */
+
+
+
+
+
+
+
 import './env';
 
 import { migrate } from 'drizzle-orm/neon-http/migrator';
