@@ -11,9 +11,9 @@ const subscribeSchema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Please enter a valid email address'),
 });
 
-/**
- * POST /api/newsletter/subscribe
- */
+
+
+
 export const POST = withErrorHandling(async (request: NextRequest) => {
   let body: unknown;
 

@@ -1,9 +1,9 @@
-/**
- * Seeds the catalogue with dummy products (no paid tools required — every
- * image is a free Pexels photo).
- *
- *   npm run db:seed
- */
+
+
+
+
+
+
 import './env';
 
 import { sql } from 'drizzle-orm';
@@ -27,7 +27,7 @@ const seedProducts = [
     tags: ['bestseller', 'premium', 'velvet'],
     basePrice: 899,
     originalPrice: 1199,
-    images: [IMG('586767', 600), IMG('1080696', 600)],
+    images: [IMG('2082090', 600), IMG('1080696', 600)],
     dimensions: { length: '32"', width: '30"', height: '35"', weight: '45 lbs', unit: 'inches' },
     materials: ['Premium Velvet', 'Hardwood'],
     colors: ['Navy', 'Emerald', 'Blush'],

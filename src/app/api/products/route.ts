@@ -6,11 +6,11 @@ import { createProductSchema, productQuerySchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
-/**
- * GET /api/products
- * Public catalogue listing with search, category filtering, price range,
- * sorting and pagination.
- */
+
+
+
+
+
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const rawQuery = Object.fromEntries(request.nextUrl.searchParams.entries());
   const parsed = productQuerySchema.safeParse(rawQuery);
@@ -23,10 +23,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   return ok(result);
 });
 
-/**
- * POST /api/products
- * Creates a product (admin).
- */
+
+
+
+
 export const POST = withErrorHandling(async (request: NextRequest) => {
   let body: unknown;
 

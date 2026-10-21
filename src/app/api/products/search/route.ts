@@ -6,10 +6,10 @@ import { productQuerySchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
-/**
- * GET /api/products/search?q=sofa&page=1&limit=20
- * Full text search across name, description, brand and subcategory.
- */
+
+
+
+
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const rawQuery: Record<string, string> = {

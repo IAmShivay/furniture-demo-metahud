@@ -8,10 +8,10 @@ export const dynamic = 'force-dynamic';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-/**
- * GET /api/products/:id
- * Single product used by the product detail page.
- */
+
+
+
+
 export const GET = withErrorHandling(async (_request: NextRequest, context: RouteContext) => {
   const { id } = await context.params;
   const product = await getProductById(id);
@@ -23,10 +23,10 @@ export const GET = withErrorHandling(async (_request: NextRequest, context: Rout
   return ok({ product });
 });
 
-/**
- * PUT /api/products/:id  (PATCH behaves the same)
- * Updates a product (admin).
- */
+
+
+
+
 const updateHandler = withErrorHandling(async (request: NextRequest, context: RouteContext) => {
   const { id } = await context.params;
 
@@ -60,10 +60,10 @@ const updateHandler = withErrorHandling(async (request: NextRequest, context: Ro
 export const PUT = updateHandler;
 export const PATCH = updateHandler;
 
-/**
- * DELETE /api/products/:id
- * Removes a product (admin).
- */
+
+
+
+
 export const DELETE = withErrorHandling(async (_request: NextRequest, context: RouteContext) => {
   const { id } = await context.params;
 
