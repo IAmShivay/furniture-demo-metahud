@@ -5,14 +5,17 @@ import { useCallback } from 'react';
 import { useAppDispatch } from '../store/hooks';
 import { useLocalStorage } from './useLocalStorage';
 import { addNotification } from '../store/slices/uiSlice';
-
-
-
-
-
+import { useGetProductsQuery } from '../store/api/productsApi';
 export const useWishlist = () => {
   const dispatch = useAppDispatch();
   const [wishlist, setWishlist] = useLocalStorage<string[]>('wishlist', []);
+
+  const { data, isLoading } = useGetProductsQuery(
+    { ids: wishlist.join(','), includeInactive: true, limit: 100 },
+    { skip: wishlist.length === 0 },
+  );
+
+  const wishlistItems = (data?.data?.items ?? []) as any[];
 
   const addToWishlist = useCallback(
     async (productId: string, productName: string) => {
@@ -78,13 +81,13 @@ export const useWishlist = () => {
 
   return {
     wishlist,
-    wishlistItems: wishlist.map((productId) => ({ productId })),
+    wishlistItems,
     addToWishlist,
     removeFromWishlist,
     toggleWishlist,
     isInWishlist,
     clearWishlist,
     wishlistCount: wishlist.length,
-    isLoading: false,
+    isLoading,
   };
 };

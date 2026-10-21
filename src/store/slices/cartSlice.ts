@@ -33,7 +33,7 @@ interface CartState {
 }
 
 const initialState: CartState = {
-  items: JSON.parse(storage.get('cartItems') || '[]'),
+  items: [],
   total: 0,
   itemCount: 0,
   isOpen: false,
@@ -156,6 +156,22 @@ const cartSlice = createSlice({
     },
     
     
+    hydrateCart: (state) => {
+      const raw = storage.get('cartItems');
+
+      if (!raw) return;
+
+      try {
+        const items = JSON.parse(raw) as CartItem[];
+        state.items = items;
+        const totals = calculateTotals(items);
+        state.total = totals.total;
+        state.itemCount = totals.itemCount;
+      } catch {
+        return;
+      }
+    },
+
     syncCart: (state, action: PayloadAction<CartItem[]>) => {
       state.items = action.payload;
       const totals = calculateTotals(state.items);
@@ -178,6 +194,7 @@ export const {
   setError,
   clearError,
   syncCart,
+  hydrateCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

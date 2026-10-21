@@ -68,8 +68,8 @@ const initialState: UIState = {
   searchOpen: false,
   searchQuery: '',
   filtersOpen: true,
-  theme: (storage.get('theme') as 'light' | 'dark') || 'light',
-  layout: (storage.get('layout') as 'grid' | 'list') || 'grid',
+  theme: 'light',
+  layout: 'grid',
   wishlistOpen: false,
   quickViewOpen: false,
   quickViewProduct: null,
@@ -79,6 +79,14 @@ const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
+    hydrateUi: (state) => {
+      const theme = storage.get('theme');
+      const layout = storage.get('layout');
+
+      if (theme === 'light' || theme === 'dark') state.theme = theme;
+      if (layout === 'grid' || layout === 'list') state.layout = layout;
+    },
+
     
     setGlobalLoading: (state, action: PayloadAction<boolean>) => {
       state.globalLoading = action.payload;
@@ -252,6 +260,7 @@ export const {
   setWishlistOpen,
   openQuickView,
   closeQuickView,
+  hydrateUi,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

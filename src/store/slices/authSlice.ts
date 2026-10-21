@@ -11,6 +11,7 @@ export interface User {
   role: 'customer' | 'support' | 'manager' | 'admin';
   avatar?: string;
   emailVerified: boolean;
+  isActive?: boolean;
   phoneVerified: boolean;
   lastLogin?: string;
   createdAt: string;
@@ -26,7 +27,6 @@ export interface User {
 
 export interface AuthState {
   user: User | null;
-  token: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -76,47 +76,8 @@ export const permissionMap: Record<string, string[]> = {
 };
 
 
-const loadUserFromStorage = (): User | null => {
-  try {
-    const savedUser = storage.get('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  } catch (error) {
-    console.error('Error loading user from localStorage:', error);
-    return null;
-  }
-};
-
-const loadTokenFromStorage = (): string | null => {
-  try {
-    return storage.get('token');
-  } catch (error) {
-    console.error('Error loading token from localStorage:', error);
-    return null;
-  }
-};
-
-
-export const parseJwt = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('Error parsing JWT:', error);
-    throw new Error('Invalid token');
-  }
-};
-
 const initialState: AuthState = {
-  user: loadUserFromStorage(),
-  token: loadTokenFromStorage(),
+  user: null,
   loading: false,
   error: null,
 };
@@ -125,14 +86,21 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (
-      state,
-      action: PayloadAction<{ user: User; token: string }>
-    ) => {
+    hydrateUser: (state) => {
+      const savedUser = storage.get('user');
+
+      if (!savedUser) return;
+
+      try {
+        state.user = JSON.parse(savedUser) as User;
+      } catch {
+        state.user = null;
+      }
+    },
+
+    setCredentials: (state, action: PayloadAction<{ user: User }>) => {
       state.user = action.payload.user;
-      state.token = action.payload.token;
       storage.set('user', JSON.stringify(action.payload.user));
-      storage.set('token', action.payload.token);
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
@@ -140,9 +108,7 @@ export const authSlice = createSlice({
     },
     logout: (state) => {
       state.user = null;
-      state.token = null;
       storage.remove('user');
-      storage.remove('token');
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -170,12 +136,12 @@ export const {
   setError,
   clearError,
   updateProfile,
+  hydrateUser,
 } = authSlice.actions;
 
 
 export const selectUser = (state: RootState) => state.auth.user;
-export const selectToken = (state: RootState) => state.auth.token;
-export const selectIsAuthenticated = (state: RootState) => Boolean(state.auth.token);
+export const selectIsAuthenticated = (state: RootState) => Boolean(state.auth.user);
 export const selectLoading = (state: RootState) => state.auth.loading;
 export const selectError = (state: RootState) => state.auth.error;
 
@@ -218,40 +184,5 @@ export const selectOwnerOrAdmin = (state: RootState, resourceUserId: string) => 
   return user.id === resourceUserId;
 };
 
-
-export const selectTokenStatus = (state: RootState) => {
-  const token = state.auth.token;
-  if (!token) return { isValid: false, remainingTime: 0 };
-  
-  try {
-    const decoded = parseJwt(token);
-    if (!decoded || !decoded.exp) return { isValid: false, remainingTime: 0 };
-    
-    const expiresAt = decoded.exp * 1000;
-    const now = Date.now();
-    const remainingTime = Math.max(0, Math.floor((expiresAt - now) / 1000));
-    const isExpired = now >= expiresAt;
-    
-    return { 
-      isValid: !isExpired, 
-      remainingTime,
-      expiresAt
-    };
-  } catch (error) {
-    return { isValid: false, remainingTime: 0 };
-  }
-};
-
-
-export const selectIsTokenExpiring = (state: RootState) => {
-  const tokenStatus = selectTokenStatus(state);
-  return tokenStatus.isValid && tokenStatus.remainingTime < 300;
-};
-
-
-export const selectIsTokenExpired = (state: RootState) => {
-  const tokenStatus = selectTokenStatus(state);
-  return !tokenStatus.isValid;
-};
 
 export default authSlice.reducer;
