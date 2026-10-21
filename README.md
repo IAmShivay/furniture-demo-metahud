@@ -8,8 +8,9 @@ one-to-one into **Next.js 15 (App Router)** and backed by **PostgreSQL through D
 
 | | |
 | --- | --- |
-| **Stack** | Next.js 15 · React 19 · TypeScript · Tailwind CSS 3 · Redux Toolkit / RTK Query · Drizzle ORM · PostgreSQL (Neon) · Zod |
+| **Stack** | Next.js 15 · React 19 · TypeScript · Tailwind CSS 3 · Redux Toolkit / RTK Query · Drizzle ORM · PostgreSQL (Neon) · Zod · Cloudinary |
 | **Database** | PostgreSQL (Neon serverless, pooled connection) |
+| **Images** | Cloudinary (uploaded from the admin panel, only the URL is stored) |
 | **Payments / hosting / domains** | Not required — the app runs fully on a local machine |
 | **Seed data** | 12 dummy furniture products (free Pexels images) |
 
@@ -33,6 +34,9 @@ npm install
 cp .env.example .env.local
 # then edit .env.local and paste your PostgreSQL connection string:
 # DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
+# plus the Cloudinary credentials for image uploads:
+# CLOUDINARY_CLOUD_NAME=...  CLOUDINARY_API_KEY=...  CLOUDINARY_API_SECRET=...
+# and a random JWT_SECRET for the session cookie
 
 # 3. Create the tables (applies the Drizzle migrations)
 npm run db:migrate
@@ -120,6 +124,7 @@ The credentials can be changed through environment variables (`SEED_ADMIN_EMAIL`
 | `screenshots/09-login.png` | Sign in page |
 | `screenshots/10-account-profile.png` | Profile page of the signed in administrator |
 | `screenshots/11-register.png` | Create account page |
+| `screenshots/12-admin-image-upload.png` | Admin panel uploading a product image to Cloudinary |
 
 **Responsiveness** was verified with a headless browser at **360 / 390 / 768 / 1024 / 1440 px** on
 the home page, catalogue, product detail page, admin dashboard and admin product table —
@@ -147,6 +152,7 @@ All routes live under `src/app/api` and answer with a consistent envelope:
 | `GET` | `/api/products/featured` | Featured products for the home page |
 | `GET` | `/api/products/search?q=sofa` | Full text search over name, description, brand, subcategory |
 | `GET` | `/api/admin/dashboard` | Catalogue statistics for the admin dashboard |
+| `POST` | `/api/upload` | Upload a product image to Cloudinary (multipart `file`) |
 | `POST` | `/api/auth/register` | Create an account (returns a session cookie) |
 | `POST` | `/api/auth/login` | Sign in (returns a session cookie) |
 | `POST` | `/api/auth/logout` | Sign out (clears the session cookie) |
@@ -164,6 +170,12 @@ curl "http://localhost:3000/api/products?category=sofas&sortBy=price-low&limit=5
 # search
 curl "http://localhost:3000/api/products/search?q=velvet"
 
+# upload a product image (signed in as manager or admin)
+curl -X POST http://localhost:3000/api/upload \
+  -b cookies.txt \
+  -F "file=@./chair.jpg"
+# -> { "success": true, "data": { "image": { "url": "https://res.cloudinary.com/…", "width": 800, … } } }
+
 # create (the body is validated with zod)
 curl -X POST http://localhost:3000/api/products \
   -H "content-type: application/json" \
@@ -175,7 +187,7 @@ curl -X POST http://localhost:3000/api/products \
         "subcategory": "dining-chairs",
         "basePrice": 959,
         "originalPrice": 1199,
-        "images": ["https://images.pexels.com/photos/1080696/pexels-photo-1080696.jpeg"],
+        "images": ["https://res.cloudinary.com/dyiso4ohk/image/upload/luxehouse/products/chair.jpg"],
         "materials": ["Solid Oak"],
         "colors": ["Natural Oak"],
         "inventory": { "quantity": 14, "lowStockThreshold": 4 },
@@ -220,6 +232,7 @@ furniture-catalogue/
 │   ├── lib/
 │   │   ├── api.ts           # response envelope + error handling wrapper
 │   │   ├── auth.ts          # password hashing, session helpers
+│   │   ├── cloudinary.ts    # image upload client
 │   │   ├── product.ts       # row -> DTO mapper
 │   │   ├── products.ts      # query layer (filters, sorting, pagination, statistics)
 │   │   ├── rbac.ts          # roles and access levels
@@ -258,6 +271,11 @@ furniture-catalogue/
   server by `src/middleware.ts`, which protects `/admin/*` and enforces the role levels
   (support → dashboard, manager → products, admin → full access). Nothing sensitive is kept in
   `localStorage`; only the user profile is cached there for instant rendering.
+* **Image uploads** — the admin panel uploads product images to Cloudinary through
+  `POST /api/upload` (`multipart/form-data`). The API secret stays on the server, the upload is
+  restricted to manager and admin roles, and the route validates the mime type (JPG, PNG, WEBP,
+  AVIF) and the size (max 5 MB) before the file ever reaches Cloudinary. Only the resulting
+  `secure_url` is stored in the product row.
 * **SSR safety** — `localStorage` is only read in the browser (`src/lib/storage.ts`). Persisted
   state (cart, session profile, theme) is hydrated in an effect after mount, which avoids
   hydration mismatches between the server and the client render.

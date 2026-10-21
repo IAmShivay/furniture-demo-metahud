@@ -65,6 +65,7 @@ const Products: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const { data, isLoading } = useGetProductsQuery({
     page, limit: 10, search: search || undefined, category: categoryFilter || undefined,
@@ -150,6 +151,48 @@ const Products: React.FC = () => {
 
   const removeArrayItem = (field: 'images' | 'materials' | 'colors' | 'features', idx: number) => {
     setForm(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== idx) }));
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setUploading(true);
+
+    try {
+      const body = new FormData();
+      body.append('file', file);
+
+      const response = await fetch('/api/upload', { method: 'POST', body });
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result?.message || 'Failed to upload the image');
+        return;
+      }
+
+      const url = result?.data?.image?.url as string;
+
+      setForm(prev => {
+        const images = [...prev.images];
+        const emptyIndex = images.findIndex((value) => !value);
+
+        if (emptyIndex === -1) {
+          images.push(url);
+        } else {
+          images[emptyIndex] = url;
+        }
+
+        return { ...prev, images };
+      });
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload the image');
+    } finally {
+      setUploading(false);
+      event.target.value = '';
+    }
   };
 
   return (
@@ -401,12 +444,27 @@ const Products: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 capitalize">{field} {field === 'images' || field === 'materials' || field === 'colors' ? '*' : ''}</label>
                     <button type="button" onClick={() => addArrayItem(field)} className="text-xs text-amber-600 hover:text-amber-700 font-medium">+ Add</button>
                   </div>
+                  {field === 'images' && (
+                    <div className="flex items-center gap-2 mb-2 p-3 border border-dashed border-amber-300 rounded-xl bg-amber-50/40">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/avif"
+                        onChange={handleImageUpload}
+                        className="text-sm text-gray-600 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-amber-600 file:text-white file:text-xs file:font-semibold hover:file:bg-amber-700"
+                      />
+                      <span className="text-xs text-gray-500">JPG, PNG, WEBP or AVIF · max 5 MB</span>
+                      {uploading && <Loader2 className="w-4 h-4 animate-spin text-amber-600" />}
+                    </div>
+                  )}
                   <div className="space-y-2">
                     {form[field].map((val, idx) => (
                       <div key={idx} className="flex gap-2">
                         <input type="text" value={val} onChange={e => updateArrayField(field, idx, e.target.value)}
                           placeholder={field === 'images' ? 'Image URL' : `Enter ${field.slice(0, -1)}`}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                        {field === 'images' && val && (
+                          <img src={val} alt="" className="w-10 h-10 rounded-lg object-cover border border-gray-200" />
+                        )}
                         {form[field].length > 1 && (
                           <button type="button" onClick={() => removeArrayItem(field, idx)} className="p-2 text-gray-400 hover:text-red-500">
                             <X className="w-4 h-4" />
