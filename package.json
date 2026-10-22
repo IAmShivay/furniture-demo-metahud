@@ -4,9 +4,9 @@
   "private": true,
   "description": "Mini Digital Catalogue - full-stack product catalogue for a furniture business (Next.js + PostgreSQL + Drizzle ORM)",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node api.js && next dev",
+    "build": "node api.js && next build",
+    "start": "node api.js && next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
