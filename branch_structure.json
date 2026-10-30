@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "dependabot/npm_and_yarn/npm_and_yarn-4bb469df06",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "dependabot/npm_and_yarn/npm_and_yarn-4bb469df06": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "dependabot/npm_and_yarn/npm_and_yarn-4bb469df06",
+    "origin"
+  ]
+}
